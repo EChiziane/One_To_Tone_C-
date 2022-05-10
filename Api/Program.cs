@@ -1,8 +1,22 @@
+using Application.Features;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connString =  builder.Configuration.GetConnectionString("PostGreSql");
+
+builder.Services.AddDbContext<DataContext>(options => { 
+    options.UseNpgsql(connString);
+});
+
+builder.Services.AddMediatR(typeof(ListPerson.ListPeopleQuery).Assembly);
+
 
 // Add services to the container.
 
@@ -20,7 +34,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
+
+app.UseRouting();
 
 app.UseAuthorization();
 

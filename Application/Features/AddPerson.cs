@@ -13,8 +13,6 @@ namespace Application.Features.Persons
         public class AddPersonCommand : IRequest<Person>
         {
             public string Name { get; set; }
-            public string Color { get; set; }
-            public int AnimalTypeId { get; set; }
         }
         
         public class AddPersonValidator : AbstractValidator<AddPersonCommand>
@@ -22,7 +20,7 @@ namespace Application.Features.Persons
             public AddPersonValidator()
             {
                 RuleFor(x => x.Name).NotEmpty();
-                RuleFor(x => x.Color).NotEmpty();
+           
             }
         }
         
@@ -37,20 +35,27 @@ namespace Application.Features.Persons
             
             public async Task<Person> Handle(AddPersonCommand request, CancellationToken cancellationToken)
             {
-                var animalType = await _context.Addresses.FindAsync(request.AnimalTypeId);
-                if (animalType is null || animalType.Description != "Person")
-                {
-                    throw new Exception("Animal Type not found or is not Person");
-                }
+               // var animalType = await _context.Addresses.FindAsync(request.AnimalTypeId);
+               // if (animalType is null || animalType.Description != "Person")
+               // {
+                //    throw new Exception("Animal Type not found or is not Person");
+               // }
+               Address address = new Address
+               {
+                   Place = ""
+               };
 
                 var Person = new Person
                 {
                     Name = request.Name,
-                    Color = request.Color,
-                    AnimalType = animalType
+                   Address = address,
+                   // AddressId = address.Id
                 };
+              
+                await _context.Addresses.AddAsync(address);
+                var result1 = await _context.SaveChangesAsync();
 
-                await _context.Persons.AddAsync(Person);
+                await _context.People.AddAsync(Person);
                 var result = await _context.SaveChangesAsync();
                 if (result <= 0)
                 {
